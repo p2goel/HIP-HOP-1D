@@ -42,7 +42,7 @@ def func_prop(t, y):
     return np.dot(e_prop_mat, y)
 
 
-def surface_hopping(c_coeff, x_current, v_current, F_current, E_ad, dt, cstate):
+def surface_hopping(c_coeff, x_current, v_current, f_current, E_ad, dt, cstate):
     
     '''
     Main function for surface hopping dynamics:
@@ -72,9 +72,9 @@ def surface_hopping(c_coeff, x_current, v_current, F_current, E_ad, dt, cstate):
             k = (nel*(nel)//2) - (nel-a)*((nel-a))//2 + cstate - a - 1
             # Note that NACVEC satisfies: f_ab = - (f_ba)*
             if a > cstate:
-                bmat[k] = - 2.*np.real(np.conj(amat[cstate,a])*(np.dot(v_current, F_current[k])))
+                bmat[k] = - 2.*np.real(np.conj(amat[cstate,a])*(np.dot(v_current, f_current[k])))
             else:
-                bmat[k] = - 2.*np.real(np.conj(amat[cstate,a])*(np.dot(v_current, -np.conj(F_current[k]))))
+                bmat[k] = - 2.*np.real(np.conj(amat[cstate,a])*(np.dot(v_current, -np.conj(f_current[k]))))
             gmat[k] = max(0., (bmat[k]/np.real(amat[cstate, cstate]))*dt)
             print('k, gmat, rand_num', k, gmat[k], rand_num)
             if gmat[k] > rand_num:
@@ -90,20 +90,25 @@ def surface_hopping(c_coeff, x_current, v_current, F_current, E_ad, dt, cstate):
             pass
     
 
+
     # If a hop has occurred, adjust momentum and check for frustrated hops
     if HOP:
         # Note that hop has occurred from pstate to cstate (new def)
         # Compute quantities aij, bij (from the change in kinetic energy)
         k = (nel*(nel)//2) - (nel-pstate)*((nel-pstate))//2 + cstate - pstate - 1
-        ak = (F_current[k]**2)/(2.*mass)
-        bk = F_current[k]*v_current
+        if pstate < cstate:
+            f_current[k] = - np.conj(f_current[k])
+        else:
+            pass
+        ak = (f_current[k]**2)/(2.*mass)
+        bk = f_current[k]*v_current
         resid = bk**2 + 4.*ak*(E_ad[pstate] - E_ad[cstate])
 
         # Check for real roots
         if resid < 0. :
             print('Frustated hop occurred. Reverse hopping and velocities')
             gamma = bk/ak
-            v_new = v_current - gamma*(F_current[k]/mass)
+            v_new = v_current - gamma*(f_current[k]/mass)
             # Reverse Hopping too!
             HOP = False
             temp = cstate
@@ -115,7 +120,7 @@ def surface_hopping(c_coeff, x_current, v_current, F_current, E_ad, dt, cstate):
                 gamma = (bk + np.sqrt(resid))/(2.*ak)
             else:
                 gamma = (bk - np.sqrt(resid))/(2.*ak)
-            v_new = v_current - gamma*(F_current[k]/mass)
+            v_new = v_current - gamma*(f_current[k]/mass)
     else:
         # No HOP has occurred. Exit gracefully!
         v_new = v_current
@@ -226,7 +231,8 @@ if __name__ == "__main__":
                 if a != b and a > b:
                     k = (nel*(nel)//2) - (nel-a)*((nel-a))//2 + b - a - 1 
                     e_prop_mat[a,b] = - np.dot(v_current, F_current[k])
-                    e_prop_mat[b,a] = -e_prop_mat[a,b]                      # Note that NAC term is anti-hermitean
+                    e_prop_mat[b,a] = - np.dot(v_current, - np.conj(F_current[k]))
+                    #e_prop_mat[b,a] = -e_prop_mat[a,b]                      # Note that NAC term is anti-hermitean
                 else:
                     pass
         
