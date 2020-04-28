@@ -24,3 +24,4 @@ V12 = lambda x: C*np.exp(-D*(x**2))
 
 all_diabats = [V11, V22]
 all_couplings = [V12]
+

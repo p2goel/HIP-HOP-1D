@@ -6,10 +6,10 @@ from subprocess import call, check_call
 # X0, P0 = np.loadtxt('init_cond', usecols=(0,1), unpack=True)
 
 # Run Trajectories ina loop for now, paralleize later
-N = 1         # Number of runs
-x0 = -5.0
-v0 = 0.0025
-name_dir = k_5
+N = 20         # Number of runs
+x0 = -4.0
+v0 = 0.02
+name_dir = 'k_40'
 
 # Create TRAJi
 os.mkdir(name_dir)

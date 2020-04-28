@@ -2,14 +2,14 @@ import os
 import sys
 import numpy as np
 
-path = 'Tully_model_1/k_20'
+path = 'k_40'
 
 nel = 2
 # Runs
-N = 2000
+N = 20
 
 # All lines to skip before the time step you want to analyze
-n_skiprows = 2500
+n_skiprows = 1200
 
 # Initialize
 pop = np.zeros((nel, N))

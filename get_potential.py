@@ -90,6 +90,7 @@ def get_gradients_and_nadvec(x):
     for a in range(nel):
         for b in range(nel):
             if a != b and a > b:
+                print(a, b)
                 k = (nel*(nel)//2) - (nel-a)*((nel-a))//2 + b - a - 1 
                 # Nonadiabtic coupling between state a and b 
                 numerator = np.dot(vec[:,b].T, np.dot(grad_matrix, vec[:,a])) 
@@ -97,6 +98,8 @@ def get_gradients_and_nadvec(x):
                 # Give Warning fo HUGE nadvec and quit if tending to infinity.
                 # NOTE: How do QM programs deal with it? 
                 nadvec[k] = numerator/(val[b] - val[a])
+            else:
+                pass
 
     return val, analytical_gradients, nadvec
 
