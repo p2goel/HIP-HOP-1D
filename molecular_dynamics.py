@@ -70,7 +70,11 @@ def surface_hopping(c_coeff, x_current, v_current, F_current, E_ad, dt, cstate):
         if a != cstate:
             print('Compute hopping from state', cstate, 'to state', a) 
             k = (nel*(nel)//2) - (nel-a)*((nel-a))//2 + cstate - a - 1
-            bmat[k] = - 2.*np.real(np.conj(amat[cstate,a])*(np.dot(v_current, F_current[k])))
+            # Note that NACVEC satisfies: f_ab = - (f_ba)*
+            if a > cstate:
+                bmat[k] = - 2.*np.real(np.conj(amat[cstate,a])*(np.dot(v_current, F_current[k])))
+            else:
+                bmat[k] = - 2.*np.real(np.conj(amat[cstate,a])*(np.dot(v_current, -np.conj(F_current[k]))))
             gmat[k] = max(0., (bmat[k]/np.real(amat[cstate, cstate]))*dt)
             print('k, gmat, rand_num', k, gmat[k], rand_num)
             if gmat[k] > rand_num:
